@@ -6,6 +6,6 @@
 const Util = require('./src/util');
 
 module.exports = (app, config = {}) => {
-  app.Util = Util;
-  return app.Util;
+  if(app) app.Util = Util;
+  return Util;
 }
