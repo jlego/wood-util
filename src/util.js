@@ -29,7 +29,7 @@ exports.uuid = function() {
 
 // 生成表查询条件listkey
 exports.getListKey = function(req) {
-  let data = deepCopy(req.body);
+  let data = exports.deepCopy(req.body);
   delete data.data.limit;
   delete data.data.page;
   let arr = [];
@@ -38,7 +38,7 @@ exports.getListKey = function(req) {
   }
   arr.push(`url=${req.url}`);
   arr.sort();
-  return md5(arr.join('&'));
+  return exports.md5(arr.join('&'));
 };
 
 // 深拷贝
@@ -50,7 +50,7 @@ exports.deepCopy = function(obj){
   //   newobj = JSON.parse(JSON.stringify(obj));
   } else {
     for(let i in obj){
-      newobj[i] = typeof obj[i] === 'object' && !(obj[i] instanceof Date) ? deepCopy(obj[i]) : obj[i];
+      newobj[i] = typeof obj[i] === 'object' && !(obj[i] instanceof Date) ? exports.deepCopy(obj[i]) : obj[i];
     }
   }
   return newobj;
@@ -82,7 +82,7 @@ exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
     if(!Array.isArray(obj)){
       let newObj = {};
       for(let key in obj){
-        let newKey = isLower ? firstLowerCase(key, otherIsLower) : firstUpperCase(key, otherIsLower);
+        let newKey = isLower ? exports.firstLowerCase(key, otherIsLower) : exports.firstUpperCase(key, otherIsLower);
         newObj[newKey] = obj[key];
       }
       return newObj;
