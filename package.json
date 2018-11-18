@@ -1,0 +1,26 @@
+{
+  "name": "wood-util",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://jlego@github.com/jlego/wood-util.git"
+  },
+  "keywords": [
+    "wood-util"
+  ],
+  "author": "jlego",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jlego/wood-util/issues"
+  },
+  "homepage": "https://github.com/jlego/wood-util#readme",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "moment": "^2.22.2"
+  }
+}
