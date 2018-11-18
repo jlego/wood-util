@@ -5,14 +5,14 @@ const moment = require('moment');
 moment.locale('zh-cn');
 
 // 捕获异常
-module.catchErr = function(promise){
+exports.catchErr = function(promise){
   return promise
     .then(data => ({ data }))
     .catch(err => ({ err }));
 };
 
 // md5
-module.md5 = function(str) {
+exports.md5 = function(str) {
   let hash = crypto.createHash("md5");
   hash.update(str);
   str = hash.digest("hex");
@@ -20,7 +20,7 @@ module.md5 = function(str) {
 };
 
 // 唯一码
-module.uuid = function() {
+exports.uuid = function() {
   function S4() {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   }
@@ -28,8 +28,8 @@ module.uuid = function() {
 };
 
 // 生成表查询条件listkey
-module.getListKey = function(req) {
-  let data = Util.deepCopy(req.body);
+exports.getListKey = function(req) {
+  let data = deepCopy(req.body);
   delete data.data.limit;
   delete data.data.page;
   let arr = [];
@@ -38,11 +38,11 @@ module.getListKey = function(req) {
   }
   arr.push(`url=${req.url}`);
   arr.sort();
-  return Util.md5(arr.join('&'));
+  return md5(arr.join('&'));
 };
 
 // 深拷贝
-module.deepCopy = function(obj){
+exports.deepCopy = function(obj){
   let str, newobj = Array.isArray(obj) ? [] : {};
   if(typeof obj !== 'object'){
     return;
@@ -50,39 +50,39 @@ module.deepCopy = function(obj){
   //   newobj = JSON.parse(JSON.stringify(obj));
   } else {
     for(let i in obj){
-      newobj[i] = typeof obj[i] === 'object' && !(obj[i] instanceof Date) ? Util.deepCopy(obj[i]) : obj[i];
+      newobj[i] = typeof obj[i] === 'object' && !(obj[i] instanceof Date) ? deepCopy(obj[i]) : obj[i];
     }
   }
   return newobj;
 };
 
 // 是否空对象
-module.isEmpty = function(value){
+exports.isEmpty = function(value){
   if(JSON.stringify(value) == '{}' || JSON.stringify(value) == '[]') return true;
   return false;
 };
 
 // 首字母小写
-module.firstLowerCase = function(str, otherIsLower = true) {
+exports.firstLowerCase = function(str, otherIsLower = true) {
   return str.replace(/\b(\w)(\w*)/g, function($0, $1, $2) {
     return $1.toLowerCase() + (otherIsLower ? $2.toLowerCase() : $2);
   });
 };
 
 // 首字母大写
-module.firstUpperCase = function(str, otherIsLower = true) {
+exports.firstUpperCase = function(str, otherIsLower = true) {
   return str.replace(/\b(\w)(\w*)/g, function($0, $1, $2) {
     return $1.toUpperCase() + (otherIsLower ? $2.toLowerCase() : $2);
   });
 };
 
 // 对象key大小写转换
-module.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
+exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
   if(typeof obj == 'object'){
     if(!Array.isArray(obj)){
       let newObj = {};
       for(let key in obj){
-        let newKey = isLower ? Util.firstLowerCase(key, otherIsLower) : Util.firstUpperCase(key, otherIsLower);
+        let newKey = isLower ? firstLowerCase(key, otherIsLower) : firstUpperCase(key, otherIsLower);
         newObj[newKey] = obj[key];
       }
       return newObj;
@@ -91,7 +91,7 @@ module.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
   return obj;
 };
 
-module.respData = function(data, reqData){
+exports.respData = function(data, reqData){
   let status = 0,
     msg = '';
   if (!data && data !== false) data = WOOD.error_code.error_nodata;
@@ -115,14 +115,14 @@ module.respData = function(data, reqData){
 };
 
 // 过滤html
-module.filterHtml = function(str){
+exports.filterHtml = function(str){
   return str ? str.replace(/<[^>]+>/g,"") : '';
 }
 
-module.moment = moment;
+exports.moment = moment;
 
 // 获取参数
-module.getParams = function(req){
+exports.getParams = function(req){
   if(req.method == 'GET'){
     return req.query;
   }else{
@@ -132,7 +132,7 @@ module.getParams = function(req){
 };
 
 // 返回错误
-module.error = function(err) {
+exports.error = function(err) {
   let result = JSON.parse(JSON.stringify(WOOD.error_code.error));
   if (typeof err !== 'object') {
     if(typeof err == 'string') result.msg = err;
