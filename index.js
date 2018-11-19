@@ -5,7 +5,8 @@
  */
 const Util = require('./src/util');
 
-module.exports = (app, config = {}) => {
-  if(app) app.Util = Util;
-  return Util;
+module.exports = (app = {}, config = {}) => {
+  app.Util = Util;
+  if(app.addAppProp) app.addAppProp('Util', app.Util);
+  return app;
 }
