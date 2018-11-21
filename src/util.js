@@ -40,6 +40,9 @@ exports.getListKey = function(req) {
   arr.sort();
   return exports.md5(arr.join('&'));
 };
+exports.getReqKey = function(req) {
+  return exports.getListKey(req);
+}
 
 // 深拷贝
 exports.deepCopy = function(obj){
