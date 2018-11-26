@@ -4,13 +4,6 @@ const crypto = require('crypto');
 const moment = require('moment');
 moment.locale('zh-cn');
 
-// 捕获异常
-exports.catchErr = function(promise){
-  return promise
-    .then(data => ({ data }))
-    .catch(err => ({ err }));
-};
-
 // md5
 exports.md5 = function(str) {
   let hash = crypto.createHash("md5");
@@ -94,29 +87,6 @@ exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
   return obj;
 };
 
-exports.respData = function(data, reqData){
-  let status = 0,
-    msg = '';
-  if (!data && data !== false) data = WOOD.error_code.error_nodata;
-  if (data.path && data.message && data.kind) { //返回错误
-    status = WOOD.error_code.error_wrongdata.code;
-    msg = WOOD.error_code.error_wrongdata.msg;
-  } else if (data.name == 'ValidationError') {
-    status = WOOD.error_code.error_validation.code;
-    msg = WOOD.error_code.error_validation.msg;
-  } else {
-    status = !data.code ? WOOD.error_code.success.code : data.code;
-    msg = !data.msg ? WOOD.error_code.success.msg : data.msg;
-  }
-  return {
-    // seqno: reqData.seqno,
-    cmd: reqData.cmd,
-    status,
-    msg,
-    data: !data.code ? data : {}
-  };
-};
-
 // 过滤html
 exports.filterHtml = function(str){
   return str ? str.replace(/<[^>]+>/g,"") : '';
@@ -132,21 +102,4 @@ exports.getParams = function(req){
     return req.body;
   }
   return {};
-};
-
-// 返回错误
-exports.error = function(err) {
-  let result = JSON.parse(JSON.stringify(WOOD.error_code.error));
-  if (typeof err !== 'object') {
-    if(typeof err == 'string') result.msg = err;
-    result.error = err;
-  }else if(typeof err == 'object'){
-    if(err.message){
-      result.msg = err.message;
-      result.error = err;
-    }else if(err.msg && err.code){
-      result = err;
-    }
-  }
-  return result;
 };
