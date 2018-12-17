@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const moment = require('moment');
 moment.locale('zh-cn');
 
+exports.moment = moment;
+
 // md5
 exports.md5 = function(str) {
   let hash = crypto.createHash("md5");
@@ -19,6 +21,16 @@ exports.uuid = function() {
   }
   return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 };
+
+// utf8转b64
+exports.utf8_to_b64 = function( str ) {
+  return window.btoa(unescape(encodeURIComponent( str )));
+}
+
+// b64转utf8
+exports.b64_to_utf8 = function( str ) {
+  return decodeURIComponent(escape(window.atob( str )));
+}
 
 // 生成表查询条件listkey
 exports.getListKey = function(req) {
@@ -91,8 +103,6 @@ exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
 exports.filterHtml = function(str){
   return str ? str.replace(/<[^>]+>/g,"") : '';
 }
-
-exports.moment = moment;
 
 // 获取参数
 exports.getParams = function(req){
