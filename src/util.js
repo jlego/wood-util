@@ -2,6 +2,7 @@
 // by YuRonghui 2018-1-4
 const crypto = require('crypto');
 const moment = require('moment');
+const _request = require('request-promise');
 moment.locale('zh-cn');
 
 exports.moment = moment;
@@ -112,4 +113,34 @@ exports.getParams = function(req){
     return req.body;
   }
   return {};
+};
+
+// http请求方法
+async function sendhttp(url, method, opts = {}){
+  let { catchErr, error } = WOOD;
+  let result = await catchErr(_request[method](url, opts));
+  if(result.err) throw error(result.err);
+  if(typeof result.data === 'string'){
+    try{
+      return JSON.parse(result.data);
+    }catch(err){
+      throw error(err);
+    }
+  }else{
+    return result.data;
+  }
+}
+exports.request = {
+  async get(url, opts = {}){
+    return await sendhttp(url, 'get', opts);
+  },
+  async post(url, opts = {}){
+    return await sendhttp(url, 'post', opts);
+  },
+  async put(url, opts = {}){
+    return await sendhttp(url, 'put', opts);
+  },
+  async delete(url, opts = {}){
+    return await sendhttp(url, 'delete', opts);
+  }
 };
