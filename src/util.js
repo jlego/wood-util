@@ -3,12 +3,14 @@
 const crypto = require('crypto');
 const moment = require('moment');
 const _request = require('request-promise');
+const woodError = require('wood-error');
+const fs = require('fs');
 moment.locale('zh-cn');
 
 exports.moment = moment;
 
 // md5
-exports.md5 = function(str) {
+exports.md5 = function (str) {
   let hash = crypto.createHash("md5");
   hash.update(str);
   str = hash.digest("hex");
@@ -16,7 +18,7 @@ exports.md5 = function(str) {
 };
 
 // 唯一码
-exports.uuid = function() {
+exports.uuid = function () {
   function S4() {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   }
@@ -24,17 +26,17 @@ exports.uuid = function() {
 };
 
 // utf8转b64
-exports.utf8_to_b64 = function( str ) {
-  return window.btoa(unescape(encodeURIComponent( str )));
+exports.utf8_to_b64 = function (str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
 }
 
 // b64转utf8
-exports.b64_to_utf8 = function( str ) {
-  return decodeURIComponent(escape(window.atob( str )));
+exports.b64_to_utf8 = function (str) {
+  return decodeURIComponent(escape(window.atob(str)));
 }
 
 // 生成表查询条件listkey
-exports.getListKey = function(req) {
+exports.getListKey = function (req) {
   let data = exports.deepCopy(req.body);
   delete data.data.limit;
   delete data.data.page;
@@ -46,19 +48,19 @@ exports.getListKey = function(req) {
   arr.sort();
   return exports.md5(arr.join('&'));
 };
-exports.getReqKey = function(req) {
+exports.getReqKey = function (req) {
   return exports.getListKey(req);
 }
 
 // 深拷贝
-exports.deepCopy = function(obj){
+exports.deepCopy = function (obj) {
   let str, newobj = Array.isArray(obj) ? [] : {};
-  if(typeof obj !== 'object'){
+  if (typeof obj !== 'object') {
     return;
-  // } else if(window.JSON){
-  //   newobj = JSON.parse(JSON.stringify(obj));
+    // } else if(window.JSON){
+    //   newobj = JSON.parse(JSON.stringify(obj));
   } else {
-    for(let i in obj){
+    for (let i in obj) {
       newobj[i] = typeof obj[i] === 'object' && !(obj[i] instanceof Date) ? exports.deepCopy(obj[i]) : obj[i];
     }
   }
@@ -66,31 +68,31 @@ exports.deepCopy = function(obj){
 };
 
 // 是否空对象
-exports.isEmpty = function(value){
-  if(JSON.stringify(value) == '{}' || JSON.stringify(value) == '[]') return true;
+exports.isEmpty = function (value) {
+  if (JSON.stringify(value) == '{}' || JSON.stringify(value) == '[]') return true;
   return false;
 };
 
 // 首字母小写
-exports.firstLowerCase = function(str, otherIsLower = true) {
-  return str.replace(/\b(\w)(\w*)/g, function($0, $1, $2) {
+exports.firstLowerCase = function (str, otherIsLower = true) {
+  return str.replace(/\b(\w)(\w*)/g, function ($0, $1, $2) {
     return $1.toLowerCase() + (otherIsLower ? $2.toLowerCase() : $2);
   });
 };
 
 // 首字母大写
-exports.firstUpperCase = function(str, otherIsLower = true) {
-  return str.replace(/\b(\w)(\w*)/g, function($0, $1, $2) {
+exports.firstUpperCase = function (str, otherIsLower = true) {
+  return str.replace(/\b(\w)(\w*)/g, function ($0, $1, $2) {
     return $1.toUpperCase() + (otherIsLower ? $2.toLowerCase() : $2);
   });
 };
 
 // 对象key大小写转换
-exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
-  if(typeof obj == 'object'){
-    if(!Array.isArray(obj)){
+exports.objectKeyLowerUpper = function (obj, isLower, otherIsLower = true) {
+  if (typeof obj == 'object') {
+    if (!Array.isArray(obj)) {
       let newObj = {};
-      for(let key in obj){
+      for (let key in obj) {
         let newKey = isLower ? exports.firstLowerCase(key, otherIsLower) : exports.firstUpperCase(key, otherIsLower);
         newObj[newKey] = obj[key];
       }
@@ -101,46 +103,81 @@ exports.objectKeyLowerUpper = function(obj, isLower, otherIsLower = true){
 };
 
 // 过滤html
-exports.filterHtml = function(str){
-  return str ? str.replace(/<[^>]+>/g,"") : '';
+exports.filterHtml = function (str) {
+  return str ? str.replace(/<[^>]+>/g, "") : '';
 }
 
 // 获取参数
-exports.getParams = function(req){
-  if(req.method == 'GET'){
+exports.getParams = function (req) {
+  if (req.method == 'GET') {
     return req.query;
-  }else{
+  } else {
     return req.body;
   }
   return {};
 };
 
 // http请求方法
-async function sendhttp(url, method, opts = {}){
+async function sendhttp(url, method, opts = {}) {
   let { catchErr, error } = WOOD;
   let result = await catchErr(_request[method](url, opts));
-  if(result.err) throw error(result.err);
-  if(typeof result.data === 'string'){
-    try{
+  if (result.err) throw error(result.err);
+  if (typeof result.data === 'string') {
+    try {
       return JSON.parse(result.data);
-    }catch(err){
+    } catch (err) {
       throw error(err);
     }
-  }else{
+  } else {
     return result.data;
   }
 }
 exports.request = {
-  async get(url, opts = {}){
+  async get(url, opts = {}) {
     return await sendhttp(url, 'get', opts);
   },
-  async post(url, opts = {}){
+  async post(url, opts = {}) {
     return await sendhttp(url, 'post', opts);
   },
-  async put(url, opts = {}){
+  async put(url, opts = {}) {
     return await sendhttp(url, 'put', opts);
   },
-  async delete(url, opts = {}){
+  async delete(url, opts = {}) {
     return await sendhttp(url, 'delete', opts);
+  }
+};
+
+exports.cmdCheck = function (cmd, check) {
+  if (cmd !== check) throw new woodError.NoLogError('无效的cmd');
+}
+
+exports.paramCheck = function (param, check) {
+  for (let item of check) {
+    if (!param[item]) throw new woodError.NoLogError(`miss argument ${item}`);
+  }
+}
+
+exports.arrayNotEmpty = function (param) {
+  if (Array.isArray(param) && param.length) return true;
+  return false;
+}
+
+exports.deleteFolder = function (path) {
+  deleteFolder(path);
+}
+
+function deleteFolder(path) {
+  let files = [];
+  if (fs.existsSync(path)) {
+    files = fs.readdirSync(path);
+    files.forEach(function (file, index) {
+      let curPath = path + "/" + file;
+      if (fs.statSync(curPath).isDirectory()) { // recurse
+        deleteFolder(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
   }
 };
